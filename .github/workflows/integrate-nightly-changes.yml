@@ -1,0 +1,84 @@
+---
+name: nightly
+
+on:
+  schedule:
+    - cron: '00 4 * * *'
+  workflow_dispatch:
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      tf-hash: ${{ steps.rev-parse.outputs.tf-hash }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: tensorflow/serving
+          ref: master
+
+      - name: Get commit hash
+        id: rev-parse
+        run: echo "tf-hash=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Build proto archive
+        run: |
+          cd tensorflow_serving
+          tar -cf ../tensorflow_serving_proto.tar $(find . -name "*.proto")
+
+      - name: Upload protos
+        uses: actions/upload-artifact@v3
+        with:
+          name: tensorflow_serving_proto
+          path: tensorflow_serving_proto.tar
+          retention-days: 3
+
+      - name: Upload license
+        uses: actions/upload-artifact@v3
+        with:
+          name: license
+          path: LICENSE
+          retention-days: 3
+
+  commit:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Download protos
+        uses: actions/download-artifact@v3
+        with:
+          name: tensorflow_serving_proto
+
+      - name: Extract protos
+        run: |
+          rm -rf tensorflow
+          mkdir -p tensorflow/serving
+          cd tensorflow/serving
+          tar -xf ../../tensorflow_serving_proto.tar
+          rm ../../tensorflow_serving_proto.tar
+
+      - name: Download license
+        uses: actions/download-artifact@v3
+        with:
+          name: license
+
+      - name: Check working tree for changes
+        id: git-status
+        run: |
+          M=$([ -n "$(git status --porcelain)" ] && echo true || echo false)
+          echo "repo-changes=${M}" >> $GITHUB_OUTPUT
+
+      - name: Commit changes
+        if: ${{ steps.git-status.outputs.repo-changes == 'true' }}
+        run: |
+          git config --global user.name 'William Muir'
+          git config --global user.email 'wamuir@gmail.com'
+          git add .
+          git commit -m "[automated] Integrate changes from nightly build" \
+            -m "tensorflow/serving@${{ needs.build.outputs.tf-hash }}"
+          git push
