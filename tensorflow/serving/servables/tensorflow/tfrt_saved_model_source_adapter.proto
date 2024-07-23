@@ -208,22 +208,6 @@ message TfrtSavedModelConfig {
   // Whether to enable paging. This should only be true when using Pathways
   // backend.
   bool enable_paging = 2022;
-
-  // PjRt memory kind to use for paged-out buffers.
-  string paging_host_memory_kind = 2023;
-
-  // Specific IFRT client type.
-  enum IfrtClientType {
-    IFRT_CLIENT_UNSPECIFIED = 0;
-    // PJRT IFRT client.
-    IFRT_CLIENT_PJRT = 1;
-    // Pathways IFRT client.
-    IFRT_CLIENT_PATHWAYS = 2;
-  }
-  IfrtClientType ifrt_client_type = 2024;
-
-  // The minimum of the maximum number of outstanding enqueue batches
-  int64 tfrt_min_max_enqueued_batches = 2025;
 }
 
 // Config proto for TfrtSavedModelSourceAdapter.
