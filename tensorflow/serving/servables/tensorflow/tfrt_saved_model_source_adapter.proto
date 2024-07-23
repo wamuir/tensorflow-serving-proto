@@ -6,7 +6,7 @@ import "tensorflow/core/protobuf/config.proto";
 import "tensorflow_serving/servables/tensorflow/session_bundle_config.proto";
 
 message TfrtSavedModelConfig {
-  reserved 1019, 1031;
+  reserved 1031;
   reserved "online_cost_analysis_normalize_ratio";
 
   // A SessionBundleConfig.
@@ -117,6 +117,10 @@ message TfrtSavedModelConfig {
   // If true, use fuesd op for tpu compile, execute and data transfer.
   bool use_fused_tpu_op = 1018;
 
+  // If true, TFRT will use fallback to handle unsupported features in MLIR
+  // Bridge.
+  bool enable_mlir_bridge_fallback = 1019;
+
   // If true, tf.While's iterations will be parallelized.
   bool enable_while_parallel_iterations = 1023;
 
@@ -194,36 +198,6 @@ message TfrtSavedModelConfig {
 
   // Whether to use fused op for GPU compile, execute and data transfer.
   bool tfrt_use_fused_gpu_op = 2018;
-
-  // The minimum number of batch threads.
-  int64 tfrt_min_num_batch_threads = 2019;
-
-  // Whether to use IFRT as device driver for device execution.
-  bool tfrt_use_ifrt = 2020;
-
-  // Whether to enable core selector for TFRT+IFRT. It is only effective when
-  // tfrt_use_ifrt is true.
-  bool enable_tfrt_use_ifrt_core_selector = 2021;
-
-  // Whether to enable paging. This should only be true when using Pathways
-  // backend.
-  bool enable_paging = 2022;
-
-  // PjRt memory kind to use for paged-out buffers.
-  string paging_host_memory_kind = 2023;
-
-  // Specific IFRT client type.
-  enum IfrtClientType {
-    IFRT_CLIENT_UNSPECIFIED = 0;
-    // PJRT IFRT client.
-    IFRT_CLIENT_PJRT = 1;
-    // Pathways IFRT client.
-    IFRT_CLIENT_PATHWAYS = 2;
-  }
-  IfrtClientType ifrt_client_type = 2024;
-
-  // The minimum of the maximum number of outstanding enqueue batches
-  int64 tfrt_min_max_enqueued_batches = 2025;
 }
 
 // Config proto for TfrtSavedModelSourceAdapter.
