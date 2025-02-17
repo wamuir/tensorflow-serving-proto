@@ -13,7 +13,7 @@ jobs:
     outputs:
       tf-hash: ${{ steps.rev-parse.outputs.tf-hash }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           repository: tensorflow/serving
           ref: ${{ github.ref == 'refs/heads/nightly' && 'master' || github.ref }}
@@ -28,14 +28,14 @@ jobs:
           tar -cf ../tensorflow_serving_proto.tar $(find . -name "*.proto")
 
       - name: Upload protos
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tensorflow_serving_proto
           path: tensorflow_serving_proto.tar
           retention-days: 3
 
       - name: Upload license
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: license
           path: LICENSE
@@ -45,12 +45,12 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
 
       - name: Download protos
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: tensorflow_serving_proto
 
@@ -63,7 +63,7 @@ jobs:
           rm ../../tensorflow_serving_proto.tar
 
       - name: Download license
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: license
 
