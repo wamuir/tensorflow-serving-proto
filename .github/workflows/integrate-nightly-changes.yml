@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: tensorflow/serving
-          ref: ${{ github.ref == 'refs/heads/nightly' && 'master' || github.ref }}
+          ref: "2.18.0" # ${{ github.ref == 'refs/heads/nightly' && 'master' || github.ref }}
 
       - name: Get commit hash
         id: rev-parse
